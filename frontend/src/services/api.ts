@@ -1,11 +1,34 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { ApiResponse, PaginatedResponse } from '@/types/api';
 
-// Create axios instance
+// Create axios instance for Appwrite functions
 const api: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001/api/v1',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://cloud.appwrite.io/v1',
   timeout: 30000, // 30 seconds
 });
+
+// Appwrite project configuration
+const APPWRITE_PROJECT_ID = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID || '';
+
+// Helper function to call Appwrite functions
+const callAppwriteFunction = async (functionId: string, method: string = 'POST', data?: any, headers?: any) => {
+  const url = `/functions/${functionId}/executions`;
+  const requestData = {
+    data: JSON.stringify(data || {}),
+    method: method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...headers,
+    },
+    path: `/${functionId}`,
+  };
+
+  return api.post(url, requestData, {
+    headers: {
+      'X-Appwrite-Project': APPWRITE_PROJECT_ID,
+    },
+  });
+};
 
 // Request interceptor to add auth token
 api.interceptors.request.use(
@@ -57,94 +80,239 @@ export const apiService = {
 
 // Auth API
 export const authAPI = {
-  login: (credentials: { email: string; password: string; account_type: string }) =>
-    api.post('/auth/login', credentials),
+  login: async (credentials: { email: string; password: string; account_type: string }) => {
+    const response = await callAppwriteFunction('auth', 'POST', credentials);
+    return response.data.response;
+  },
 
-  register: (userData: any) =>
-    api.post('/auth/register', userData),
+  register: async (userData: any) => {
+    const response = await callAppwriteFunction('users', 'POST', userData);
+    return response.data.response;
+  },
 
-  refreshToken: () =>
-    api.post('/auth/refresh-token'),
+  refreshToken: async () => {
+    const response = await callAppwriteFunction('auth', 'POST', {}, { path: '/refresh-token' });
+    return response.data.response;
+  },
 
   logout: () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('user');
   },
+
+  getRoles: async () => {
+    const response = await callAppwriteFunction('auth', 'GET', {}, { path: '/roles' });
+    return response.data.response;
+  },
 };
 
 // User API
 export const userAPI = {
-  getProfile: () => api.get('/users/me'),
-  updateProfile: (data: any) => api.put('/users/me', data),
+  getProfile: async () => {
+    const response = await callAppwriteFunction('auth', 'GET', {}, { path: '/me' });
+    return response.data.response;
+  },
+
+  updateProfile: async (data: any) => {
+    const response = await callAppwriteFunction('auth', 'PUT', data, { path: '/me' });
+    return response.data.response;
+  },
 };
 
-// Project API
+// Project API - Simplified for Appwrite (projects not implemented yet)
 export const projectAPI = {
-  create: (data: any) => api.post('/projects', data),
-  list: (params?: any) => api.get('/projects', { params }),
-  get: (id: number) => api.get(`/projects/${id}`),
-  update: (id: number, data: any) => api.put(`/projects/${id}`, data),
-  delete: (id: number) => api.delete(`/projects/${id}`),
-  getMembers: (id: number) => api.get(`/projects/${id}/members`),
-  addMember: (projectId: number, userId: number, role?: string) =>
-    api.post(`/projects/${projectId}/members/${userId}`, null, { params: { role } }),
-  removeMember: (projectId: number, userId: number) =>
-    api.delete(`/projects/${projectId}/members/${userId}`),
+  create: async (data: any) => {
+    // Placeholder - projects not implemented in Appwrite version yet
+    throw new Error('Projects not implemented in Appwrite version yet');
+  },
+
+  list: async (params?: any) => {
+    // Placeholder - projects not implemented in Appwrite version yet
+    return { data: [] };
+  },
+
+  get: async (id: number) => {
+    // Placeholder - projects not implemented in Appwrite version yet
+    throw new Error('Projects not implemented in Appwrite version yet');
+  },
+
+  update: async (id: number, data: any) => {
+    // Placeholder - projects not implemented in Appwrite version yet
+    throw new Error('Projects not implemented in Appwrite version yet');
+  },
+
+  delete: async (id: number) => {
+    // Placeholder - projects not implemented in Appwrite version yet
+    throw new Error('Projects not implemented in Appwrite version yet');
+  },
+
+  getMembers: async (id: number) => {
+    // Placeholder - projects not implemented in Appwrite version yet
+    return { data: [] };
+  },
+
+  addMember: async (projectId: number, userId: number, role?: string) => {
+    // Placeholder - projects not implemented in Appwrite version yet
+    throw new Error('Projects not implemented in Appwrite version yet');
+  },
+
+  removeMember: async (projectId: number, userId: number) => {
+    // Placeholder - projects not implemented in Appwrite version yet
+    throw new Error('Projects not implemented in Appwrite version yet');
+  },
 };
 
 // Document API
 export const documentAPI = {
-  upload: (formData: FormData, projectId: number) => {
-    const params = new URLSearchParams({ project_id: projectId.toString() });
-    return api.post('/documents/upload', formData, {
-      params,
-      headers: { 'Content-Type': 'multipart/form-data' },
+  upload: async (formData: FormData, projectId: number) => {
+    // Convert FormData to the format expected by Appwrite functions
+    const file = formData.get('file') as File;
+    const reader = new FileReader();
+
+    return new Promise((resolve, reject) => {
+      reader.onload = async () => {
+        try {
+          const base64Data = reader.result?.toString().split(',')[1]; // Remove data URL prefix
+          const uploadData = {
+            filename: file.name,
+            mime_type: file.type,
+            file_data: base64Data,
+            project_id: projectId
+          };
+
+          const response = await callAppwriteFunction('documents', 'POST', uploadData, { path: '/upload' });
+          resolve(response.data.response);
+        } catch (error) {
+          reject(error);
+        }
+      };
+
+      reader.onerror = () => reject(new Error('Failed to read file'));
+      reader.readAsDataURL(file);
     });
   },
 
-  list: (params?: any) => api.get('/documents', { params }),
-  get: (id: number) => api.get(`/documents/${id}`),
-  download: (id: number) => api.get(`/documents/${id}/download`, { responseType: 'blob' }),
-  delete: (id: number) => api.delete(`/documents/${id}`),
-  
+  list: async (params?: any) => {
+    const response = await callAppwriteFunction('documents', 'GET', params || {});
+    return response.data.response;
+  },
+
+  get: async (id: number) => {
+    // Not implemented in Appwrite version yet
+    throw new Error('Get document not implemented in Appwrite version yet');
+  },
+
+  download: async (id: number) => {
+    // Not implemented in Appwrite version yet
+    throw new Error('Download not implemented in Appwrite version yet');
+  },
+
+  delete: async (id: number) => {
+    // Not implemented in Appwrite version yet
+    throw new Error('Delete document not implemented in Appwrite version yet');
+  },
+
   // Get documents available for chat (shared + personal)
-  getAvailableForChat: () => api.get('/documents/available-for-chat'),
+  getAvailableForChat: async () => {
+    const response = await callAppwriteFunction('documents', 'GET', {});
+    return response.data.response;
+  },
 };
 
 // Conversation API
 export const conversationAPI = {
-  create: (data: any) => api.post('/conversations', data),
-  list: (params?: any) => api.get('/conversations', { params }),
-  get: (id: number) => api.get(`/conversations/${id}`),
-  delete: (id: number) => api.delete(`/conversations/${id}`),
-  chat: (conversationId: number, message: any) =>
-    api.post(`/conversations/${conversationId}/chat`, message),
-  
+  create: async (data: any) => {
+    const response = await callAppwriteFunction('conversations', 'POST', data);
+    return response.data.response;
+  },
+
+  list: async (params?: any) => {
+    const response = await callAppwriteFunction('conversations', 'GET', params || {});
+    return response.data.response;
+  },
+
+  get: async (id: number) => {
+    // Not implemented in Appwrite version yet
+    throw new Error('Get conversation not implemented in Appwrite version yet');
+  },
+
+  delete: async (id: number) => {
+    // Not implemented in Appwrite version yet
+    throw new Error('Delete conversation not implemented in Appwrite version yet');
+  },
+
+  chat: async (conversationId: number, message: any) => {
+    const response = await callAppwriteFunction('conversations', 'POST', message, { path: `/${conversationId}/chat` });
+    return response.data.response;
+  },
+
   // Upload document directly in chat
-  uploadDocument: (conversationId: number, formData: FormData) =>
-    api.post(`/conversations/${conversationId}/upload-document`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }),
+  uploadDocument: async (conversationId: number, formData: FormData) => {
+    // Not implemented in Appwrite version yet
+    throw new Error('Upload document in chat not implemented in Appwrite version yet');
+  },
 };
 
 // Admin API
 export const adminAPI = {
-  getUsers: (params?: any) => api.get('/admin/users', { params }),
-  createUser: (data: any) => api.post('/auth/users', data),
-  updateUser: (id: number, data: any) => api.put(`/auth/users/${id}`, data),
-  deleteUser: (id: number) => api.delete(`/auth/users/${id}`),
-  getAuditLogs: (params?: any) => api.get('/admin/audit', { params }),
-  getSystemStats: () => api.get('/admin/stats'),
-  toggleUserActive: (id: number) => api.patch(`/admin/users/${id}/toggle-active`),
-  updateUserRole: (userId: number, roleId: number) =>
-    api.patch(`/admin/users/${userId}/role`, null, { params: { role_id: roleId } }),
-  getRoles: () => api.get('/admin/roles'),
+  getUsers: async (params?: any) => {
+    const response = await callAppwriteFunction('admin', 'GET', params || {}, { path: '/users' });
+    return response.data.response;
+  },
+
+  createUser: async (data: any) => {
+    const response = await callAppwriteFunction('users', 'POST', data);
+    return response.data.response;
+  },
+
+  updateUser: async (id: number, data: any) => {
+    // Not implemented in Appwrite version yet
+    throw new Error('Update user not implemented in Appwrite version yet');
+  },
+
+  deleteUser: async (id: number) => {
+    // Not implemented in Appwrite version yet
+    throw new Error('Delete user not implemented in Appwrite version yet');
+  },
+
+  getAuditLogs: async (params?: any) => {
+    // Not implemented in Appwrite version yet
+    return { data: [] };
+  },
+
+  getSystemStats: async () => {
+    const response = await callAppwriteFunction('admin', 'GET', {}, { path: '/stats' });
+    return response.data.response;
+  },
+
+  toggleUserActive: async (id: number) => {
+    const response = await callAppwriteFunction('admin', 'PATCH', { user_id: id }, { path: '/toggle-active' });
+    return response.data.response;
+  },
+
+  updateUserRole: async (userId: number, roleId: number) => {
+    // Not implemented in Appwrite version yet
+    throw new Error('Update user role not implemented in Appwrite version yet');
+  },
+
+  getRoles: async () => {
+    const response = await callAppwriteFunction('admin', 'GET', {}, { path: '/roles' });
+    return response.data.response;
+  },
 };
 
 // Health API
 export const healthAPI = {
-  check: () => api.get('/health'),
-  detailed: () => api.get('/health/detailed'),
+  check: async () => {
+    const response = await callAppwriteFunction('health', 'GET', {});
+    return response.data.response;
+  },
+
+  detailed: async () => {
+    // Detailed health not implemented in Appwrite version yet
+    const response = await callAppwriteFunction('health', 'GET', {});
+    return response.data.response;
+  },
 };
 
 // Utility functions
