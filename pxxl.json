@@ -32,5 +32,10 @@
     "postgresql": {
       "version": "15"
     }
+  },
+  "addons": {
+    "redis": {
+      "version": "7"
+    }
   }
 }

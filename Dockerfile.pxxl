@@ -1,7 +1,7 @@
 # Pxxl.app deployment - Combined frontend and backend
 FROM python:3.11-slim
 
-# Install system dependencies
+# Install system dependencies for AI/ML workloads
 RUN apt-get update && apt-get install -y \
     curl \
     nodejs \
@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     git \
     supervisor \
+    libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Create app user
@@ -17,9 +18,9 @@ RUN useradd --create-home --shell /bin/bash app
 # Set working directory
 WORKDIR /app
 
-# Copy backend requirements and install (lightweight version for Pxxl.app)
-COPY backend/requirements-pxxl.txt .
-RUN pip install --no-cache-dir -r requirements-pxxl.txt
+# Copy backend requirements and install
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy frontend package files and install
 COPY frontend/package*.json ./frontend/
