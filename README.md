@@ -42,8 +42,20 @@ An internal, secure, AI-powered system that transforms organizational documents 
 
 ### 1. Clone the Repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/YOUR_USERNAME/ai-knowledge-assistant.git
 cd ai-knowledge-assistant
+```
+
+### Quick Start (Windows)
+```bash
+# Run the automated setup script
+scripts\start.bat
+```
+
+### Quick Start (Linux/Mac)
+```bash
+# Run the automated setup script
+./scripts/start.sh
 ```
 
 ### 2. Backend Setup
