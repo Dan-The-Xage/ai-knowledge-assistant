@@ -58,6 +58,34 @@ scripts\start.bat
 ./scripts/start.sh
 ```
 
+### Deploy to Cloud Platforms
+
+#### Koyeb Deployment
+```bash
+# 1. Push to GitHub
+git add .
+git commit -m "Ready for deployment"
+git push origin master
+
+# 2. Deploy to Koyeb
+# Follow KOYEB_DEPLOYMENT.md guide
+```
+
+#### Appwrite Deployment
+```bash
+# Install Appwrite CLI
+npm install -g appwrite-cli
+
+# Deploy functions
+./deploy-appwrite.sh
+```
+
+#### Pxxl.app Deployment
+```bash
+# Deploy to Pxxl.app
+./deploy-pxxl.sh
+```
+
 ### 2. Backend Setup
 
 #### Install Python Dependencies
