@@ -4,54 +4,32 @@ metadata:
   name: ai-knowledge-assistant
 spec:
   services:
-    - name: frontend
+    - name: app
       source:
         git:
           repository: https://github.com/Dan-The-Xage/ai-knowledge-assistant
           branch: master
-          workdir: frontend
       ports:
         - port: 3000
           public: true
           protocol: http
+        - port: 8000
+          protocol: http
       build:
-        type: buildpack
-        buildpack:
-          name: nodejs
+        type: docker
+        dockerfile: Dockerfile
       environment:
+        - name: HF_API_TOKEN
+          value: ${HF_API_TOKEN}
+        - name: SECRET_KEY
+          value: ${SECRET_KEY}
+        - name: DATABASE_URL
+          value: ${DATABASE_URL}
         - name: NEXT_PUBLIC_API_URL
-          value: https://backend-ai-knowledge-assistant.koyeb.app
+          value: ${KOYEB_PUBLIC_DOMAIN}
         - name: NEXT_PUBLIC_APPWRITE_PROJECT_ID
           value: ${APPWRITE_PROJECT_ID}
         - name: NEXT_PUBLIC_APP_NAME
           value: "AI Knowledge Assistant"
-      regions:
-        - fra
-
-    - name: backend
-      source:
-        git:
-          repository: https://github.com/Dan-The-Xage/ai-knowledge-assistant
-          branch: master
-          workdir: backend
-      ports:
-        - port: 8000
-          public: true
-          protocol: http
-      build:
-        type: buildpack
-        buildpack:
-          name: python
-      environment:
-        - name: DATABASE_URL
-          value: ${DATABASE_URL}
-        - name: SECRET_KEY
-          value: ${SECRET_KEY}
-        - name: HF_API_TOKEN
-          value: ${HF_API_TOKEN}
-        - name: LLM_MODEL_NAME
-          value: mistralai/Mistral-7B-Instruct-v0.2
-        - name: EMBEDDING_MODEL
-          value: BAAI/bge-small-en-v1.5
       regions:
         - fra
