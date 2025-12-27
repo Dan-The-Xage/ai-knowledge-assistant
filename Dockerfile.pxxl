@@ -1,0 +1,61 @@
+# Pxxl.app deployment - Combined frontend and backend
+FROM python:3.11-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    nodejs \
+    npm \
+    build-essential \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create app user
+RUN useradd --create-home --shell /bin/bash app
+
+# Set working directory
+WORKDIR /app
+
+# Copy backend requirements and install
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy frontend package files and install
+COPY frontend/package*.json ./frontend/
+WORKDIR /app/frontend
+RUN npm ci --only=production
+
+# Set working directory back to root
+WORKDIR /app
+
+# Copy all application code
+COPY . .
+
+# Build frontend
+WORKDIR /app/frontend
+RUN npm run build
+
+# Create necessary directories
+RUN mkdir -p /app/uploads /app/chroma_db /app/models && \
+    chown -R app:app /app
+
+# Switch to non-root user
+USER app
+
+# Expose ports
+EXPOSE 8000 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Install process manager
+USER root
+RUN apt-get update && apt-get install -y supervisor && rm -rf /var/lib/apt/lists/*
+USER app
+
+# Copy supervisor configuration
+COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Start services with supervisor
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
