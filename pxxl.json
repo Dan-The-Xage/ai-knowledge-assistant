@@ -15,27 +15,13 @@
     "DEBUG": "false"
   },
   "build": {
-    "dockerfile": "Dockerfile.pxxl",
+    "dockerfile": "Dockerfile.pxxl-frontend",
     "context": "."
   },
   "services": {
-    "backend": {
-      "port": 8000,
-      "health": "/api/v1/health"
-    },
     "frontend": {
       "port": 3000,
-      "health": "/"
-    }
-  },
-  "databases": {
-    "postgresql": {
-      "version": "15"
-    }
-  },
-  "addons": {
-    "redis": {
-      "version": "7"
+      "health": "/api/health"
     }
   }
 }

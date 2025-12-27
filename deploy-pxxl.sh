@@ -5,7 +5,8 @@
 
 set -e
 
-echo "🚀 Deploying AI Knowledge Assistant (Production) to Pxxl.app"
+echo "🚀 Deploying AI Knowledge Assistant Frontend to Pxxl.app"
+echo "📋 Architecture: Pxxl.app (Frontend) + Supabase (Backend) + Hugging Face (AI)"
 
 # Check if pxxl CLI is installed
 if ! command -v pxxl &> /dev/null; then
@@ -26,16 +27,31 @@ if [ ! -f ".env" ]; then
     cp pxxl.env.example .env
     echo "⚠️  IMPORTANT: Please edit .env with your production configuration!"
     echo "   Required settings:"
-    echo "   - HF_API_TOKEN: Your Hugging Face API token (for AI functionality)"
-    echo "   - SECRET_KEY: Generate a secure random key"
-    echo "   - NEXT_PUBLIC_API_URL: Your Pxxl.app domain"
+    echo "   - NEXT_PUBLIC_SUPABASE_URL: Your Supabase project URL"
+    echo "   - NEXT_PUBLIC_SUPABASE_ANON_KEY: Your Supabase anon key"
+    echo "   - NEXT_PUBLIC_HF_API_TOKEN: Your Hugging Face API token"
+    echo ""
+    echo "   Optional settings:"
+    echo "   - SUPABASE_SERVICE_ROLE_KEY: For admin operations"
     echo ""
     read -p "Press Enter after you've configured the .env file..."
 fi
 
 # Check for required environment variables
-if ! grep -q "HF_API_TOKEN=.*[^[:space:]]" .env; then
-    echo "⚠️  WARNING: HF_API_TOKEN not set. AI functionality will not work!"
+if ! grep -q "NEXT_PUBLIC_SUPABASE_URL=.*[^[:space:]]" .env; then
+    echo "⚠️  WARNING: NEXT_PUBLIC_SUPABASE_URL not set. Database will not work!"
+    echo "   Get your Supabase URL from: https://supabase.com/dashboard"
+    read -p "Press Enter to continue anyway..."
+fi
+
+if ! grep -q "NEXT_PUBLIC_SUPABASE_ANON_KEY=.*[^[:space:]]" .env; then
+    echo "⚠️  WARNING: NEXT_PUBLIC_SUPABASE_ANON_KEY not set. Authentication will not work!"
+    echo "   Get your Supabase anon key from: https://supabase.com/dashboard"
+    read -p "Press Enter to continue anyway..."
+fi
+
+if ! grep -q "NEXT_PUBLIC_HF_API_TOKEN=.*[^[:space:]]" .env; then
+    echo "⚠️  WARNING: NEXT_PUBLIC_HF_API_TOKEN not set. AI functionality will not work!"
     echo "   Get your token from: https://huggingface.co/settings/tokens"
     read -p "Press Enter to continue anyway..."
 fi
@@ -61,15 +77,19 @@ echo "🎉 Deployment complete!"
 echo "🌐 Your production app is available at: $APP_URL"
 
 echo ""
-echo "📋 Production Setup Checklist:"
-echo "1. ✅ Configure PostgreSQL database in Pxxl.app dashboard"
-echo "2. ✅ Set HF_API_TOKEN in environment variables"
-echo "3. ✅ Update NEXT_PUBLIC_API_URL to: $APP_URL/api/v1"
-echo "4. ✅ Test AI functionality with document uploads"
-echo "5. ⏳ DNS propagation (if using custom domain)"
+echo "📋 Deployment Setup Checklist:"
+echo "1. ✅ Set up Supabase project and run supabase-schema.sql"
+echo "2. ✅ Create 'documents' storage bucket in Supabase"
+echo "3. ✅ Configure environment variables in Pxxl.app dashboard:"
+echo "   - NEXT_PUBLIC_SUPABASE_URL"
+echo "   - NEXT_PUBLIC_SUPABASE_ANON_KEY"
+echo "   - NEXT_PUBLIC_HF_API_TOKEN"
+echo "4. ✅ Test user registration and login"
+echo "5. ✅ Test document upload and AI chat"
+echo "6. ⏳ DNS propagation (if using custom domain)"
 
 echo ""
-echo "🔧 Production Management Commands:"
+echo "🔧 Application Management Commands:"
 echo "  pxxl logs --follow      - Monitor application logs"
 echo "  pxxl env set KEY=value  - Update environment variables"
 echo "  pxxl ps                 - Check running processes"
@@ -78,16 +98,19 @@ echo "  pxxl restart            - Restart the application"
 
 echo ""
 echo "🧪 Test Your Deployment:"
-echo "  curl $APP_URL/api/v1/health"
-echo "  curl $APP_URL/api/v1/auth/roles"
+echo "  curl $APP_URL/api/health"
+echo "  Visit $APP_URL in your browser"
+echo "  Try user registration and document upload"
 
 echo ""
-echo "🎯 Production Features Enabled:"
-echo "  ✅ Real AI models (Mistral-7B via Hugging Face)"
-echo "  ✅ Production embeddings (BGE)"
-echo "  ✅ PostgreSQL database"
-echo "  ✅ Redis caching"
-echo "  ✅ Vector database (Qdrant)"
-echo "  ✅ Document processing pipeline"
-echo "  ✅ Full user management"
-echo "  ✅ Enterprise security"
+echo "🎯 Architecture Features:"
+echo "  ✅ Frontend: Next.js on Pxxl.app"
+echo "  ✅ Backend: Supabase (PostgreSQL + Storage)"
+echo "  ✅ AI: Hugging Face Inference API (Mistral-7B)"
+echo "  ✅ Real-time: Supabase subscriptions"
+echo "  ✅ Security: Row Level Security (RLS)"
+echo "  ✅ Scalability: Auto-scaling on all services"
+echo "  ✅ Cost-effective: Generous free tiers"
+
+echo ""
+echo "📖 Full documentation: PXXL_SUPABASE_DEPLOYMENT.md"

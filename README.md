@@ -60,30 +60,34 @@ scripts\start.bat
 
 ### Deploy to Cloud Platforms
 
-#### Koyeb Deployment
+#### 🎯 Recommended: Pxxl.app (Frontend) + Supabase (Backend)
 ```bash
-# 1. Push to GitHub
-git add .
-git commit -m "Ready for deployment"
-git push origin master
+# 1. Set up Supabase (Backend)
+# - Create Supabase project
+# - Run supabase-schema.sql in SQL editor
+# - Create storage bucket 'documents'
 
-# 2. Deploy to Koyeb
+# 2. Deploy Frontend to Pxxl.app
+# - Copy pxxl.env.example to .env
+# - Update Supabase and HF API credentials
+# - Push to GitHub
+# - Deploy to Pxxl.app using pxxl.json config
+
+# 3. Configure environment variables in Pxxl.app dashboard
+```
+
+#### Alternative: Koyeb Deployment
+```bash
 # Follow KOYEB_DEPLOYMENT.md guide
 ```
 
-#### Appwrite Deployment
+#### Legacy: Appwrite Deployment
 ```bash
 # Install Appwrite CLI
 npm install -g appwrite-cli
 
 # Deploy functions
 ./deploy-appwrite.sh
-```
-
-#### Pxxl.app Deployment
-```bash
-# Deploy to Pxxl.app
-./deploy-pxxl.sh
 ```
 
 ### 2. Backend Setup
