@@ -21,7 +21,7 @@
   "services": {
     "backend": {
       "port": 8000,
-      "health": "/health"
+      "health": "/api/v1/health"
     },
     "frontend": {
       "port": 3000,
@@ -31,11 +31,6 @@
   "databases": {
     "postgresql": {
       "version": "15"
-    }
-  },
-  "addons": {
-    "redis": {
-      "version": "7"
     }
   }
 }

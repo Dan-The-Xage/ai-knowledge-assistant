@@ -1,0 +1,63 @@
+# ===========================================
+# CORE FASTAPI & ASYNC (Lightweight for Pxxl.app)
+# ===========================================
+fastapi==0.109.2
+uvicorn[standard]==0.27.1
+pydantic==2.6.1
+pydantic-settings==2.1.0
+python-multipart==0.0.9
+
+# ===========================================
+# AUTHENTICATION & SECURITY
+# ===========================================
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.1.2
+email-validator==2.1.0.post1
+
+# ===========================================
+# DATABASE
+# ===========================================
+sqlalchemy==2.0.25
+aiosqlite==0.19.0
+
+# ===========================================
+# LIGHTWEIGHT AI/ML (Mock implementations for Pxxl.app)
+# ===========================================
+# Note: Using mock implementations for Pxxl.app to avoid heavy dependencies
+# sentence-transformers and torch are too heavy for Pxxl.app free tier
+
+# ===========================================
+# VECTOR DATABASE (QDRANT) - Lightweight
+# ===========================================
+qdrant-client==1.7.3
+
+# ===========================================
+# DOCUMENT PROCESSING (Basic)
+# ===========================================
+PyPDF2==3.0.1
+python-docx==1.1.0
+openpyxl==3.1.2
+chardet==5.2.0
+
+# ===========================================
+# TEXT PROCESSING (Lightweight)
+# ===========================================
+nltk==3.8.1
+
+# ===========================================
+# RATE LIMITING & CACHING
+# ===========================================
+cachetools==5.3.2
+tenacity==8.2.3
+
+# ===========================================
+# UTILITIES
+# ===========================================
+python-dotenv==1.0.1
+httpx==0.26.0
+
+# ===========================================
+# ANALYTICS & MONITORING
+# ===========================================
+prometheus-client==0.19.0
