@@ -1,56 +1,37 @@
-# Koyeb deployment - Combined frontend and backend
-FROM python:3.11-slim
+# Pxxl.app deployment - Frontend Only (AI + Supabase)
+FROM node:18-alpine
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    curl \
-    nodejs \
-    npm \
-    supervisor \
-    libgomp1 \
-    && rm -rf /var/lib/apt/lists/*
+# Install curl for health checks
+RUN apk add --no-cache curl
 
 # Create app user
-RUN useradd --create-home --shell /bin/bash app
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
 # Set working directory
 WORKDIR /app
 
-# Copy backend requirements and install
-COPY backend/requirements-pxxl-light.txt .
-RUN pip install --no-cache-dir -r requirements-pxxl-light.txt
+# Copy package files
+COPY frontend/package*.json ./
 
-# Copy frontend package files and install
-COPY frontend/package*.json ./frontend/
-WORKDIR /app/frontend
+# Install dependencies
 RUN npm ci --only=production
 
-# Set working directory back to root
-WORKDIR /app
+# Copy frontend source
+COPY frontend/ ./
 
-# Copy all application code
-COPY . .
-
-# Build frontend
-WORKDIR /app/frontend
+# Build the application
 RUN npm run build
 
-# Create necessary directories
-RUN mkdir -p /app/uploads /app/chroma_db /app/models && \
-    chown -R app:app /app
-
-# Copy supervisor configuration
-COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
 # Switch to non-root user
-USER app
+USER nextjs
 
-# Expose ports
-EXPOSE 8000 3000
+# Expose port
+EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:8000/api/v1/health || exit 1
+    CMD curl -f http://localhost:3000/api/health || exit 1
 
-# Start services with supervisor
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# Start the application
+CMD ["npm", "start"]
