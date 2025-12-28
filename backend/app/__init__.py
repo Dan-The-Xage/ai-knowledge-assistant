@@ -1,1 +1,0 @@
-# AI Knowledge Assistant Backend

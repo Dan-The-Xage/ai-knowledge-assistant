@@ -1,94 +1,59 @@
-# AI Knowledge Assistant Platform
+# AI Knowledge Assistant - Pxxl.app Frontend
 
-An internal, secure, AI-powered system that transforms organizational documents into a searchable, conversational intelligence layer using open-source LLMs, Retrieval-Augmented Generation (RAG), and strict Role-Based Access Control (RBAC).
+**Frontend-only deployment branch for Pxxl.app**
+
+This branch contains only the Next.js frontend application configured for deployment on Pxxl.app with Supabase backend and Hugging Face AI integration.
 
 ## 🚀 Features
 
-- **AI Chat Assistant**: Natural language questions with contextual answers
+- **AI Chat Assistant**: Natural language questions with contextual answers from uploaded documents
 - **Document Intelligence**: Support for PDF, Word, Excel, and text files
-- **Excel Analysis**: Parse spreadsheets and answer data-related questions
-- **Role-Based Access Control**: Enterprise-grade security with project-based permissions
-- **Knowledge Spaces**: Global, Project, and Personal knowledge organization
-- **Offline Operation**: Fully self-hosted with zero AI API costs
-- **Audit Logging**: Complete compliance and activity tracking
-- **Admin Panel**: User and project management interface
+- **Real-time AI**: Powered by Hugging Face Mistral-7B model
+- **User Authentication**: Secure login with Supabase Auth
+- **Document Management**: Upload, view, and manage documents
+- **Responsive UI**: Modern interface built with Next.js and Tailwind CSS
 
 ## 🏗️ Architecture
 
-### Backend (FastAPI + Python)
-- **Framework**: FastAPI for high-performance async API
-- **Database**: PostgreSQL for metadata and user data
-- **Vector Database**: ChromaDB for document embeddings
-- **AI/ML**: Local LLM (Mistral/Llama) with transformers
-- **Security**: JWT tokens, bcrypt password hashing, RBAC
-- **Document Processing**: PyPDF2, python-docx, openpyxl, pandas
+### Frontend (Next.js on Pxxl.app)
+- **Framework**: Next.js 14 with TypeScript
+- **Styling**: Tailwind CSS
+- **Deployment**: Docker on Pxxl.app
+- **AI Integration**: Direct Hugging Face API calls
 
-### Frontend (Next.js + React)
-- **Framework**: Next.js 14 with App Router
-- **UI**: Tailwind CSS for modern, responsive design
-- **State Management**: React hooks and context
-- **Components**: Headless UI, Heroicons, React Dropzone
-- **Real-time**: Streaming responses for chat
+### Backend (Supabase)
+- **Database**: PostgreSQL with Row Level Security
+- **Authentication**: Supabase Auth
+- **Storage**: Supabase Storage for documents
+- **Real-time**: Live subscriptions
 
-## 📋 Prerequisites
+### AI Integration (Hugging Face)
+- **Model**: Mistral-7B via Inference API
+- **Embeddings**: BGE for document processing
+- **Direct API calls** from frontend
 
-- Python 3.9+
-- Node.js 18+
-- PostgreSQL 13+
-- 16GB+ RAM (for LLM inference)
-- 50GB+ storage (for models and documents)
+## 🚀 Deployment
 
-## 🛠️ Installation & Setup
+This branch is specifically configured for **Pxxl.app deployment**.
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/YOUR_USERNAME/ai-knowledge-assistant.git
-cd ai-knowledge-assistant
-```
+### Prerequisites
+1. **Supabase Account**: Set up your database and get API keys
+2. **Hugging Face Account**: Get your API token
+3. **Pxxl.app Account**: Ready for deployment
 
-### Quick Start (Windows)
-```bash
-# Run the automated setup script
-scripts\start.bat
-```
+### Quick Deploy
+1. **Connect Repository**: Link this `pxxl-deployment` branch to Pxxl.app
+2. **Auto-Detection**: Pxxl.app detects Docker configuration
+3. **Set Environment Variables**:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   NEXT_PUBLIC_HF_API_TOKEN=your-huggingface-token
+   ```
+4. **Deploy**: Click deploy and wait for completion
 
-### Quick Start (Linux/Mac)
-```bash
-# Run the automated setup script
-./scripts/start.sh
-```
-
-### Deploy to Cloud Platforms
-
-#### 🎯 Recommended: Pxxl.app (Frontend) + Supabase (Backend)
-```bash
-# 1. Set up Supabase (Backend)
-# - Create Supabase project
-# - Run supabase-schema.sql in SQL editor
-# - Create storage bucket 'documents'
-
-# 2. Deploy Frontend to Pxxl.app
-# - Copy pxxl.env.example to .env
-# - Update Supabase and HF API credentials
-# - Push to GitHub
-# - Deploy to Pxxl.app using pxxl.json config
-
-# 3. Configure environment variables in Pxxl.app dashboard
-```
-
-#### Alternative: Koyeb Deployment
-```bash
-# Follow KOYEB_DEPLOYMENT.md guide
-```
-
-#### Legacy: Appwrite Deployment
-```bash
-# Install Appwrite CLI
-npm install -g appwrite-cli
-
-# Deploy functions
-./deploy-appwrite.sh
-```
+### Documentation
+See `PXXL_SUPABASE_DEPLOYMENT.md` for detailed deployment instructions.
 
 ### 2. Backend Setup
 
